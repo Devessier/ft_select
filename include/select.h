@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 10:48:49 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/11 15:20:07 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/11 17:33:04 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,7 @@
 # include <sys/types.h>
 # include <sys/ioctl.h>
 # define ITEM_PADDING 10
-
-typedef struct	s_window
-{
-	size_t	width;
-	size_t	height;
-}				t_window;
+# define ITEM_HEIGHT 2
 
 typedef struct	s_coord
 {

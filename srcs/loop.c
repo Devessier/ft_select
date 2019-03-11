@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 12:20:44 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/11 15:27:05 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/11 16:26:43 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,8 @@ bool		loop(int count, char **texts)
 		ft_putf("error\n");
 		return (false);
 	}
+	if (select.termcaps.clear)
+		tputs(select.termcaps.clear, 1, &ft_putchar);
 	refresh = true;
 	while (!select.exit)
 		if (refresh)

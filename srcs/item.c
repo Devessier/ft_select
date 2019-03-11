@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 12:41:56 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/11 15:36:29 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/11 17:33:34 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,12 +20,14 @@
 #include "select.h"
 #include "libft.h"
 
+#define CSI "\x1b["
+
 static bool	paint_fn(t_item *item, t_termcaps *termcaps, t_coord coords)
 {
 	(void)item, (void)coords;
 	if (termcaps->mv_cursor)
-		tputs(tgoto(termcaps->mv_cursor, coords.x + 1, coords.y + 1), 1, &ft_putchar);
-	ft_putf("%s", item->text);
+		tputs(tgoto(termcaps->mv_cursor, coords.x, coords.y * ITEM_HEIGHT), 1, &ft_putchar);
+	ft_putf(CSI "91m" "%s" CSI "0m", item->text);
 	return (true);
 }
 
