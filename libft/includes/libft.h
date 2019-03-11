@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2018/11/07 10:27:14 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/02/22 12:29:46 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/11 15:37:15 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,8 +106,8 @@ int				ft_abs(int n);
 ** Write functions
 */
 
-void			ft_putchar_fd(char c, int fd);
-void			ft_putchar(char c);
+int				ft_putchar_fd(int c, int fd);
+int				ft_putchar(int c);
 void			ft_putstr(char const *s);
 void			ft_putstr_fd(char const *s, int fd);
 void			ft_putendl(char const *s);
