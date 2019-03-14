@@ -6,16 +6,17 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 11:22:41 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/11 13:07:41 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/14 11:37:32 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <termcap.h>
 #include <termios.h>
-#include <curses.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <signal.h>
+#include <term.h>
+#include <fcntl.h>
 #include "select.h"
 #include "libft.h"
 
@@ -31,7 +32,7 @@ static void	setup_termios(bool reset)
 		tcgetattr(0, &original_termios);
 		raw_termios_struct = original_termios;
 		raw_termios_struct.c_iflag &= ~(ICRNL | IXON);
-		raw_termios_struct.c_iflag &= ~(ECHO | ICANON | IEXTEN | ISIG);
+		raw_termios_struct.c_lflag &= ~(ECHO | ICANON | IEXTEN);
 		raw_termios_struct.c_cc[VMIN] = 0;
 		raw_termios_struct.c_cc[VTIME] = 1;
 		tcsetattr(0, TCSAFLUSH, &raw_termios_struct);
@@ -48,7 +49,6 @@ int		main(int argc, char **argv)
 {
 	const char	*term = getenv("TERM");
 
-	(void)argc, (void)argv;
 	if (argc == 1)
 		return (0);
 	if (term == NULL)
