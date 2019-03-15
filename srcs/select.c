@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 11:22:41 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/14 11:37:32 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/15 15:13:59 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ void		signal_handler(int sig)
 
 int		main(int argc, char **argv)
 {
+	const int	_fd = fd();
 	const char	*term = getenv("TERM");
 
 	if (argc == 1)
@@ -65,5 +66,7 @@ int		main(int argc, char **argv)
 		loop(--argc, ++argv);
 		setup_termios(true);
 	}
+	if (_fd != -1)
+		close(_fd);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 10:48:49 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/14 18:40:32 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/15 16:43:24 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,6 +69,7 @@ typedef enum	s_text_align
 
 typedef struct	s_item
 {
+	int			id;
 	char		*text;
 	size_t		text_len;
 	bool		selected;
@@ -81,19 +82,21 @@ typedef struct	s_item
 	mode_t		file_type;
 }				t_item;
 
-typedef struct	s_completion
+typedef struct	s_earch
 {
 	char	query[1024];
 	size_t	len;
 	size_t	items_count;
 	size_t	cursor;
 	size_t	query_field_len;
-}				t_completion;
+	bool	dirty;
+}				t_search;
 
 typedef struct	s_elector
 {
 	size_t	index;
 	size_t	len;
+	size_t	visible_count;
 	t_item	*items;
 	size_t	max_item_text_len;
 	int		max_items_per_line;
@@ -122,8 +125,11 @@ typedef struct	s_reader
 }				t_reader;
 
 
-void			init_completion(t_completion *completion, t_select *select);
-void			paint_completion(t_completion *completion, t_select *select);
+int				fd(void);
+
+void			init_search(t_search *search, t_select *select);
+void			paint_search(t_search *search, t_select *select);
+void			paint_search_input(t_search *search, t_select *select);
 
 void			print_header(t_select *select);
 
@@ -133,11 +139,15 @@ int				putf_tty(const char *format, ...);
 t_winsize		get_terminal_size(void);
 
 bool			instanciate_items(t_selector *selector, int count, char **texts);
+size_t			calculate_max_text_len_items(t_item *items, size_t len);
 bool			modify_items(t_select *select);
 bool			print_items(t_item *items, size_t len);
+t_item			*item_from_id(t_item *items, size_t len, int id);
+
+void			move_cursor(t_select *select, int index, int move);
 
 void			pad(size_t pad_of);
-bool			paint(t_item *items, t_select *select, t_completion *completion);
+bool			paint(t_item *items, t_select *select, t_search *search);
 bool			loop(int count, char **items);
 
 extern bool		g_resize;

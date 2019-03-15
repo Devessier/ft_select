@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 12:41:56 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/14 17:44:41 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/15 17:07:55 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,6 +106,7 @@ bool		instanciate_items(t_selector *selector, int count, char **texts)
 		init_item(&items[i - 1], texts[i - 1], i - 1);
 		if (items[i - 1].text_len > max_len)
 			max_len = items[i - 1].text_len;
+		items[i - 1].id = i - 1;
 	}
 	*selector = (t_selector) {
 		.index = 0,
@@ -113,8 +114,22 @@ bool		instanciate_items(t_selector *selector, int count, char **texts)
 		.items = items,
 		.max_item_text_len = max_len,
 		.dirty = true,
+		.visible_count = count,
 	};
 	return (true);
+}
+
+size_t		calculate_max_text_len_items(t_item *items, size_t len)
+{
+	size_t	max;
+	size_t	i;
+
+	i = 0;
+	max = 0;
+	while (i++ < len)
+		if (!items[i - 1].hidden && items[i - 1].text_len > max)
+			max = items[i - 1].text_len;
+	return (max);
 }
 
 bool		modify_items(t_select *select)
@@ -124,15 +139,16 @@ bool		modify_items(t_select *select)
 
 	i = 0;
 	while (i++ < select->selector.len)
-	{
 		if (select->selector.items[i - 1].suppressed)
 		{
 			j = i - 1;
 			while (j++ < select->selector.len - 1)
+			{
 				select->selector.items[j - 1] = select->selector.items[j];
+				select->selector.items[j - 1].id--;
+			}
 			select->selector.len--;
 		}
-	}
 	if (select->selector.len == 0)
 		return (false);
 	return (true);
@@ -161,4 +177,15 @@ bool		print_items(t_item *items, size_t len)
 		endl = true;
 	}
 	return (true);
+}
+
+t_item		*item_from_id(t_item *items, size_t len, int id)
+{
+	size_t	i;
+
+	i = 0;
+	while (i++ < len)
+		if (items[i - 1].id == id && !items[i - 1].hidden)
+			return (&items[i - 1]);
+	return (NULL);
 }

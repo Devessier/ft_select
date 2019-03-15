@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/14 11:33:02 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/14 11:51:02 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/15 15:07:55 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,28 +14,34 @@
 #include <fcntl.h>
 #include "libft.h"
 
+int	fd(void)
+{
+	static int	fd = -1;
+
+	if (fd == -1)
+		if ((fd = open("/dev/tty", O_RDWR)) == -1)
+			return (-1);
+	return (fd);
+}
+
 int	putchar_tty(int c)
 {
-	int	fd;
-	int	nbytes;
+	const int	_fd = fd();
 
-	if ((fd = open("/dev/tty", O_RDWR)) == -1)
+	if (_fd == -1)
 		return (-1);
-	nbytes = write(fd, &c, 1);
-	close(fd);
-	return (nbytes);
+	return (write(_fd, &c, 1));
 }
 
 int	putf_tty(const char *format, ...)
 {
-	int		fd;
-	va_list	args;
+	const int	_fd = fd();
+	va_list		args;
 
-	if ((fd = open("/dev/tty", O_RDWR)) == -1)
+	if (_fd == -1)
 		return (-1);
 	va_start(args, format);
-	ft_putf_va(fd, format, args);
+	ft_putf_va(_fd, format, args);
 	va_end(args);
-	close(fd);
 	return (1);
 }
