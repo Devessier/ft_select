@@ -6,7 +6,7 @@
 #    By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/03/11 10:38:02 by bdevessi          #+#    #+#              #
-#    Updated: 2019/03/11 13:55:49 by bdevessi         ###   ########.fr        #
+#    Updated: 2019/03/15 01:24:03 by Devessier        ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -43,4 +43,4 @@ fclean: clean
 
 re: fclean $(NAME)
 
-.PHONE: clean fclean re proto
+.PHONY: clean fclean re proto
