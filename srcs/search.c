@@ -65,12 +65,8 @@ void		sort_items(t_search *search, t_select *select)
 			select->selector.items[i - 1].hidden = true;
 		select->selector.items[i - 1].dirty = true;
 	}
-	ft_putf_fd(2, "visible = %d, count = %d\n", select->selector.visible_count, count);
 	if (select->selector.visible_count != count)
-	{
-		ft_putf_fd(2, "move cursor\n");
 		select->selector.index = 0;
-	}
 	select->selector.visible_count = search->len > 0 ? count : select->selector.len;
 	select->selector.max_item_text_len = calculate_max_text_len_items(select->selector.items, select->selector.len);
 
