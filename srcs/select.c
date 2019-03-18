@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 11:22:41 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/15 15:13:59 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/18 16:01:10 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,12 +15,13 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <signal.h>
-#include <term.h>
+#include <termcap.h>
 #include <fcntl.h>
 #include "select.h"
 #include "libft.h"
+#include <term.h>
 
-static void	setup_termios(bool reset)
+void	setup_termios(bool reset)
 {
 	static struct termios	original_termios;
 	struct termios			raw_termios_struct;
@@ -39,17 +40,20 @@ static void	setup_termios(bool reset)
 	}
 }
 
-void		signal_handler(int sig)
-{
-	if (sig == SIGWINCH)
-		g_resize = true;
-}
-
 int		main(int argc, char **argv)
 {
 	const int	_fd = fd();
 	const char	*term = getenv("TERM");
+	const int	result = term != NULL && tgetent(NULL, term);
 
+	if (!(isatty(0) && _fd != -1 && term != NULL && result == 1))
+	{
+		if (term == NULL || result != 1)
+			ft_putf_fd(2, "ft_select: " "%s\n", term == NULL ? "TERM env var is undefined or null" : "Couldn't load the termcaps DB");
+		else
+			ft_putf_fd(2, "ft_select: " "%s\n", _fd == -1 ? "Couldn't open /dev/tty" : "Stdin is not a tty");
+		return (1);
+	}
 	if (argc == 1)
 		return (0);
 	if (term == NULL)
@@ -62,7 +66,7 @@ int		main(int argc, char **argv)
 			return (0);
 		}
 		setup_termios(false);
-		signal(SIGWINCH, signal_handler);
+		setup_sig_handlers();
 		loop(--argc, ++argv);
 		setup_termios(true);
 	}

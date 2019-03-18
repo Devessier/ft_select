@@ -5,3 +5,4 @@ SRCS += srcs/header.c
 SRCS += srcs/search.c
 SRCS += srcs/paint.c
 SRCS += srcs/utils.c
+SRCS += srcs/signals.c

@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 10:48:49 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/15 16:43:24 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/18 17:23:41 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 # define READER_SIZE 4096
 # define BUFF_SIZE 16
 # define CSI "\x1b["
+# define RED_FOREGROUD CSI "31m"
+# define RED_BACKGROUND CSI "41m"
 # define GREEN_COLOR CSI "92m"
 # define BLUE_COLOR CSI "94m"
 # define GREY_COLOR CSI "30;47m"
@@ -31,6 +33,9 @@
 # define COLOR_DIR CSI "36m"
 # define COLOR_LNK CSI "35m"
 # define COLOR_SOCK CSI "32m"
+# define NOTHING_TO_SHOW "Nothing to show, please modify your query"
+# define NOTHING_TO_SHOW_LEN (sizeof(NOTHING_TO_SHOW) - 1)
+# define WARNING "\xF0\x9F\x9A\xB8"
 
 typedef struct	s_box
 {
@@ -126,6 +131,10 @@ typedef struct	s_reader
 
 
 int				fd(void);
+
+void			setup_termios(bool reset);
+void			setup_sig_handlers(void);
+void			signal_handler(int sig);
 
 void			init_search(t_search *search, t_select *select);
 void			paint_search(t_search *search, t_select *select);

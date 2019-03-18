@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 12:20:44 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/15 17:46:28 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/18 17:26:28 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,12 @@ static bool	init_select(t_select *select, int count, char **texts)
 
 void		move_cursor(t_select *select, int index, int move)
 {
-	item_from_id(select->selector.items, select->selector.len, select->selector.index)->dirty = true;
+	t_item	*item;
+
+	if ((item = item_from_id(select->selector.items, select->selector.len, select->selector.index)) != NULL)
+		item->dirty = true;
+	if (select->selector.visible_count == 0 && (index == 1 || index == -1))
+		return ;
 	if (index == 1)
 		if (select->selector.index == select->selector.visible_count - 1)
 			select->selector.index = 0;
@@ -91,7 +96,8 @@ void		move_cursor(t_select *select, int index, int move)
 			select->selector.index += move;
 	else
 		select->selector.index = move;
-	item_from_id(select->selector.items, select->selector.len, select->selector.index)->dirty = true;
+	if ((item = item_from_id(select->selector.items, select->selector.len, select->selector.index)) != NULL)
+		item->dirty = true;
 }
 
 static int	handle_special_characters(char buffer[BUFF_SIZE], t_select *select, t_search *search)
@@ -105,13 +111,18 @@ static int	handle_special_characters(char buffer[BUFF_SIZE], t_select *select, t
 		return (-1);
 	if ((*buffer == 0x7f || *buffer == 0x8) && buffer[1] == 0)
 	{
+		if (select->selector.visible_count == 0)
+			return (1);
 		item->suppressed = true;
 		select->selector.dirty = true;
-		move_cursor(select, 2, -1);
+		if (select->selector.index == select->selector.visible_count - 1)
+			move_cursor(select, 2, -1);
 		return (modify_items(select) ? 1 : -1);
 	}
 	if (*buffer == ' ' && buffer[1] == 0)
 	{
+		if (select->selector.visible_count == 0)
+			return (1);
 		item->selected ^= 1;
 		item->dirty = true;
 		move_cursor(select, 0, 1);
@@ -121,7 +132,8 @@ static int	handle_special_characters(char buffer[BUFF_SIZE], t_select *select, t
 	{
 		if (buffer[2] == 'A' && select->selector.index + 1 > (size_t)select->selector.max_items_per_line)
 			move_cursor(select, 2, -select->selector.max_items_per_line);
-		else if (buffer[2] == 'B' && select->selector.index < (select->selector.visible_count - select->selector.max_items_per_line))
+		else if (buffer[2] == 'B' && (int)(select->selector.visible_count - select->selector.index) > select->selector.max_items_per_line)
+
 			move_cursor(select, 2, select->selector.max_items_per_line);
 		else if (buffer[2] == 'C')
 			move_cursor(select, 1, 0);
@@ -164,7 +176,6 @@ static void	refresh_ui(t_select *select, t_search *search)
 
 static bool	handle_resize(t_select *select, t_search *search)
 {
-
 	const t_winsize	winsize = get_terminal_size();
 
 	if (winsize.error)

@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 12:41:56 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/15 17:59:25 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/18 16:32:48 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,6 @@
 #include <sys/stat.h>
 #include "select.h"
 #include "libft.h"
-
-#define CSI "\x1b["
 
 static void	text_align(t_item *item, t_box *box)
 {

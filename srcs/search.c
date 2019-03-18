@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/14 16:30:24 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/15 17:10:06 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/18 15:41:19 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ void		sort_items(t_search *search, t_select *select)
 			select->selector.items[i - 1].hidden = true;
 		select->selector.items[i - 1].dirty = true;
 	}
-	if (select->selector.visible_count != count)
+	if (search->len > 0 && select->selector.visible_count != count)
 		select->selector.index = 0;
 	select->selector.visible_count = search->len > 0 ? count : select->selector.len;
 	select->selector.max_item_text_len = calculate_max_text_len_items(select->selector.items, select->selector.len);
