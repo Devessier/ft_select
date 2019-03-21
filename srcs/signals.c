@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/18 10:49:16 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/18 14:45:23 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/19 15:33:25 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,15 @@
 
 void		setup_sig_handlers(void)
 {
-	signal(SIGABRT, signal_handler);
 	signal(SIGINT, signal_handler);
-	signal(SIGSTOP, signal_handler);
-	signal(SIGKILL, signal_handler);
 	signal(SIGQUIT, signal_handler);
-	signal(SIGWINCH, signal_handler);
+	signal(SIGABRT, signal_handler);
+	signal(SIGKILL, signal_handler);
 	signal(SIGTSTP, signal_handler);
 	signal(SIGCONT, signal_handler);
+	signal(SIGTTIN, signal_handler);
+	signal(SIGTTOU, signal_handler);
+	signal(SIGWINCH, signal_handler);
 }
 
 static void	reset_for_exit(void)
@@ -63,14 +64,11 @@ void		signal_handler(int sig)
 		setup_sig_handlers();
 	}
 	else if (sig == SIGWINCH)
-	{
-		if ((termcap = tgetstr("cl", NULL)) != NULL)
-			tputs(termcap, 1, putchar_tty);
 		g_resize = true;
-	}
 	else
 	{
 		reset_for_exit();
+		free(g_items);
 		exit(1);
 	}
 }

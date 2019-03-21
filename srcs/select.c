@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 11:22:41 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/18 16:01:10 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/21 11:20:59 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,35 +42,35 @@ void	setup_termios(bool reset)
 
 int		main(int argc, char **argv)
 {
-	const int	_fd = fd();
 	const char	*term = getenv("TERM");
 	const int	result = term != NULL && tgetent(NULL, term);
+	int	_fd;
 
-	if (!(isatty(0) && _fd != -1 && term != NULL && result == 1))
+	if (!(isatty(0) && term != NULL && result == 1))
 	{
 		if (term == NULL || result != 1)
-			ft_putf_fd(2, "ft_select: " "%s\n", term == NULL ? "TERM env var is undefined or null" : "Couldn't load the termcaps DB");
+			ft_putf_fd(2, "ft_select: " "%s\n", term == NULL
+			? "TERM env var is undefined or null" : "Couldn't load the termcaps DB");
 		else
-			ft_putf_fd(2, "ft_select: " "%s\n", _fd == -1 ? "Couldn't open /dev/tty" : "Stdin is not a tty");
+			ft_putf_fd(2, "ft_select: Stdin is not a tty\n");
 		return (1);
 	}
 	if (argc == 1)
 		return (0);
-	if (term == NULL)
-		ft_putf("TERM variable not set, exit\n");
-	else
+	if (tgetent(NULL, term) != 1)
 	{
-		if (tgetent(NULL, term) != 1)
-		{
-			ft_putf("error\n");
-			return (0);
-		}
-		setup_termios(false);
-		setup_sig_handlers();
-		loop(--argc, ++argv);
-		setup_termios(true);
+		ft_putf("error\n");
+		return (0);
 	}
-	if (_fd != -1)
-		close(_fd);
+	if ((_fd = fd()) == -1)
+	{
+		ft_putf_fd(2, "ft_select: Couldn't open /dev/tty\n");
+		return (1);
+	}
+	setup_termios(false);
+	setup_sig_handlers();
+	loop(--argc, ++argv);
+	setup_termios(true);
+	close(_fd);
 	return (0);
 }

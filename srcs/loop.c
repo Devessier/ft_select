@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 12:20:44 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/18 17:26:28 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/21 12:13:19 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ static bool	init_select(t_select *select, int count, char **texts)
 			.stop_cup_mode = tgetstr("te", NULL),
 		},
 		.exit = false,
+		.overflow = false,
 	};
 	if (!instanciate_items(&select->selector, count, texts))
 		return (false);
@@ -100,54 +101,70 @@ void		move_cursor(t_select *select, int index, int move)
 		item->dirty = true;
 }
 
+static int	handle_del(t_item *item, t_select *select)
+{
+	if (select->selector.visible_count == 0)
+		return (1);
+	item->suppressed = true;
+	select->selector.dirty = true;
+	if (select->selector.index == select->selector.visible_count - 1)
+		move_cursor(select, 2, -1);
+	return (modify_items(select) ? 1 : -1);
+}
+
+static int	handle_space(t_item *item, t_select *select)
+{
+	if (select->selector.visible_count != 0)
+	{
+		item->selected ^= 1;
+		item->dirty = true;
+		move_cursor(select, 0, 1);
+	}
+	return (1);
+}
+
+static int	handle_keys(char buffer[BUFF_SIZE], t_select *select, t_search *search)
+{
+	if (buffer[2] == 'A' && select->selector.index + 1
+	> (size_t)select->selector.max_items_per_line)
+		move_cursor(select, 2, -select->selector.max_items_per_line);
+	else if (buffer[2] == 'B'
+	&& (int)(select->selector.visible_count - select->selector.index)
+	> select->selector.max_items_per_line)
+		move_cursor(select, 2, select->selector.max_items_per_line);
+	else if (buffer[2] == 'C')
+		move_cursor(select, 1, 0);
+	else if (buffer[2] == 'D')
+		move_cursor(select, -1, 0);
+	else if (buffer[2] == 0x33 && buffer[3] == 0x7e && search->cursor > 0)
+	{
+		search->query[--search->cursor] = '\0';
+		search->len--;
+		return (0);
+	}
+	return (1);
+}
+
 static int	handle_special_characters(char buffer[BUFF_SIZE], t_select *select, t_search *search)
 {
 	t_item	*item;
 
-	item = item_from_id(select->selector.items, select->selector.len, select->selector.index);
+	if ((item = item_from_id(select->selector.items,
+		select->selector.len, select->selector.index)) == NULL)
+		return (3);
 	if (*buffer == 0xd && buffer[1] == 0)
 		return (2);
 	if (*buffer == 0x1b && buffer[1] == 0)
 		return (-1);
+	if (select->overflow)
+		return (3);
 	if ((*buffer == 0x7f || *buffer == 0x8) && buffer[1] == 0)
-	{
-		if (select->selector.visible_count == 0)
-			return (1);
-		item->suppressed = true;
-		select->selector.dirty = true;
-		if (select->selector.index == select->selector.visible_count - 1)
-			move_cursor(select, 2, -1);
-		return (modify_items(select) ? 1 : -1);
-	}
+		return (handle_del(item, select));
 	if (*buffer == ' ' && buffer[1] == 0)
-	{
-		if (select->selector.visible_count == 0)
-			return (1);
-		item->selected ^= 1;
-		item->dirty = true;
-		move_cursor(select, 0, 1);
-		return (1);
-	}
+		return (handle_space(item, select));
 	if (*buffer == 0x1b && buffer[1] == '[')
-	{
-		if (buffer[2] == 'A' && select->selector.index + 1 > (size_t)select->selector.max_items_per_line)
-			move_cursor(select, 2, -select->selector.max_items_per_line);
-		else if (buffer[2] == 'B' && (int)(select->selector.visible_count - select->selector.index) > select->selector.max_items_per_line)
-
-			move_cursor(select, 2, select->selector.max_items_per_line);
-		else if (buffer[2] == 'C')
-			move_cursor(select, 1, 0);
-		else if (buffer[2] == 'D')
-			move_cursor(select, -1, 0);
-		else if (buffer[2] == 0x33 && buffer[3] == 0x7e && search->cursor > 0)
-		{
-			search->query[--search->cursor] = '\0';
-			search->len--;
-			return (0);
-		}
-		return (1);
-	}
-	else if (ft_isprint(*buffer))
+		return (handle_keys(buffer, select, search));
+	if (ft_isprint(*buffer))
 	{
 		search->query[search->cursor++] = *buffer;
 		search->len++;
@@ -182,8 +199,8 @@ static bool	handle_resize(t_select *select, t_search *search)
 		return (false);	
 	select->selector.dirty = true;
 	select->window = winsize.ws;
-	g_resize = false;
 	refresh_ui(select, search);
+	g_resize = false;
 	return (true);
 }
 
@@ -235,5 +252,6 @@ bool		loop(int count, char **texts)
 		tputs(select.termcaps.stop_cup_mode, 1, putchar_tty);
 	if (select.termcaps.cur_visible)
 		tputs(select.termcaps.cur_visible, 1, putchar_tty);
+	free(g_items);
 	return (true);
 }

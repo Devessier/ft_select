@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 13:08:21 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/18 18:23:27 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/21 11:55:32 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,29 +33,33 @@ void	nothing_to_show_message(t_select *select)
 
 void	no_space_screen(t_select *select)
 {
-	size_t	x;
-	size_t	y;
-
 	if (select->termcaps.mv_cursor)
-		tputs(tgoto(select->termcaps.mv_cursor, 1, 1), 1, putchar_tty);
+		tputs(tgoto(select->termcaps.mv_cursor, 0, 0), 0, putchar_tty);
 	if (select->termcaps.clear)
 		tputs(select->termcaps.clear, 1, putchar_tty);
+	if (select->termcaps.mv_cursor)
+		tputs(tgoto(select->termcaps.mv_cursor, 0, 0), 0, putchar_tty);
 	putf_tty(RED_BACKGROUND);
-	y = 3;
-	while (y++ < select->window.ws_col)
-	{
-		x = 0;
-		while (x++ < select->window.ws_row)
-			putchar_tty(' ');
-	}
+	if (select->termcaps.clear)
+		tputs(select->termcaps.clear, 1, putchar_tty);
 	putf_tty(COLOR_RESET);
 }
 
 bool	not_enough_space(t_select *select, int items_per_line)
 {
-	const int	nb_lines = 3 + select->selector.visible_count / items_per_line * ITEM_HEIGHT;
+	int		nb_lines;
+	bool	error;
 
-	return (nb_lines > select->window.ws_row || select->window.ws_col < 40);
+	if (items_per_line > 0)
+	{
+		nb_lines = 3 + select->selector.visible_count / items_per_line * ITEM_HEIGHT;
+		error = nb_lines >= select->window.ws_row || select->window.ws_col <= 40;
+	}
+	else
+		error = true;
+	if (!select->selector.dirty)
+		select->selector.dirty = error;
+	return (error);
 }
 
 bool	paint(t_item *items, t_select *select, t_search *search)
@@ -69,15 +73,16 @@ bool	paint(t_item *items, t_select *select, t_search *search)
 	if (not_enough_space(select, max_items_per_line))
 	{
 		no_space_screen(select);
+		select->overflow = true;
 		return (false);
 	}
+	else
+		select->overflow = false;
 	select->selector.max_items_per_line = max_items_per_line;
-	if (select->selector.dirty || search->dirty)
+	if (select->selector.dirty || search->dirty || g_resize)
 	{
-		if (select->termcaps.mv_cursor)
-			tputs(tgoto(select->termcaps.mv_cursor, 1, 1), 1, putchar_tty);
-		if (select->termcaps.clear)
-			tputs(select->termcaps.clear, 1, putchar_tty);
+		if (select->termcaps.clear_scr)
+			tputs(select->termcaps.clear_scr, 1, putchar_tty);
 		print_header(select);
 		paint_search(search, select);
 	}

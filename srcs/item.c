@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 12:41:56 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/18 16:32:48 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/19 13:40:43 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@
 #include <sys/stat.h>
 #include "select.h"
 #include "libft.h"
+
+t_item		*g_items = NULL;
 
 static void	text_align(t_item *item, t_box *box)
 {
@@ -98,7 +100,9 @@ bool		instanciate_items(t_selector *selector, int count, char **texts)
 
 	if (!(items = (t_item*)malloc(sizeof(t_item) * count)))
 		return (false);
+	g_items = items;
 	i = 0;
+	max_len = 0;
 	while (i++ < count)
 	{
 		init_item(&items[i - 1], texts[i - 1], i - 1);

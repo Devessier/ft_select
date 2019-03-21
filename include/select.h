@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 10:48:49 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/18 17:23:41 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/19 13:57:38 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -114,6 +114,7 @@ typedef struct	s_elect
 	t_termcaps		termcaps;
 	t_selector		selector;
 	bool			exit;
+	bool			overflow;
 }				t_select;
 
 typedef struct	s_winsize
@@ -160,5 +161,6 @@ bool			paint(t_item *items, t_select *select, t_search *search);
 bool			loop(int count, char **items);
 
 extern bool		g_resize;
+extern t_item	*g_items;
 
 #endif
