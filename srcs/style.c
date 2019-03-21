@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/21 15:24:23 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/21 15:30:11 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/21 23:34:56 by Devessier        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ void	text_align(t_item *item, t_box *box)
 		pad(unused_space / 2);
 }
 
-void	color_item(t_item *item)
+void	color_item(t_item *item, t_termcaps *termcaps)
 {
 	char	*color;
 
@@ -42,7 +42,7 @@ void	color_item(t_item *item)
 		color = COLOR_SOCK;
 	else if (S_ISREG(item->file_type))
 		color = GREEN_COLOR;
-	if (color != NULL)
+	if (color != NULL && termcaps->maximum_colors > 0)
 		putf_tty("%s%s" CSI "0m", color, item->text);
 	else
 		putf_tty("%s", item->text);

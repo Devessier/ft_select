@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 10:48:49 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/21 18:33:08 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/21 23:35:14 by Devessier        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ typedef struct	s_termcaps
 	char	*cur_invisible;
 	char	*cup_mode;
 	char	*stop_cup_mode;
+	int		maximum_colors;
 }				t_termcaps;
 
 typedef enum	e_text_align
@@ -150,7 +151,7 @@ int				putf_tty(const char *format, ...);
 t_winsize		get_terminal_size(void);
 
 void			text_align(t_item *item, t_box *box);
-void			color_item(t_item *item);
+void			color_item(t_item *item, t_termcaps *termcaps);
 
 void			init_item(t_item *item, char *text, size_t index);
 bool			instanciate_items(t_selector *selector, int count,

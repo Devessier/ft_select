@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 11:22:41 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/21 11:20:59 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/21 22:23:58 by Devessier        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,6 @@
 #include <fcntl.h>
 #include "select.h"
 #include "libft.h"
-#include <term.h>
 
 void	setup_termios(bool reset)
 {

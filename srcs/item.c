@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 12:41:56 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/21 16:48:09 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/21 23:34:21 by Devessier        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,7 @@ bool	paint_fn(t_item *item, t_termcaps *termcaps, t_box box, bool force)
 		tputs(termcaps->underline, 1, putchar_tty);
 	if (item->selected && termcaps->reverse_video)
 		tputs(termcaps->reverse_video, 1, putchar_tty);
-	color_item(item);
+	color_item(item, termcaps);
 	if ((item->hover || item->selected) && termcaps->disable_style)
 		tputs(termcaps->disable_style, 1, putchar_tty);
 	item->dirty = false;

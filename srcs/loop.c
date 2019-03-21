@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 12:20:44 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/21 18:30:03 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/21 23:43:09 by Devessier        ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,7 @@ static bool	init_select(t_select *select, int count, char **texts)
 			.cur_invisible = tgetstr("vi", NULL),
 			.cup_mode = tgetstr("ti", NULL),
 			.stop_cup_mode = tgetstr("te", NULL),
+			.maximum_colors = tgetnum("Co"),
 		},
 		.exit = false,
 		.overflow = false,
@@ -208,10 +209,12 @@ bool		loop(int count, char **texts)
 	t_search	search;
 	ssize_t		nbytes;
 	int			result;
+	bool		return_state;
 
+	return_state = true;
 	if (!init_select(&select, count, texts))
 	{
-		ft_putf("error\n");
+		ft_putf_fd(2, "ft_select: memory allocation error\n");
 		return (false);
 	}
 	init_search(&search, &select);
@@ -225,9 +228,12 @@ bool		loop(int count, char **texts)
 	{
 		if (g_resize)
 			handle_resize(&select, &search);
-		ft_bzero(buffer, BUFF_SIZE);
-		if ((nbytes = read(0, buffer, BUFF_SIZE)) == -1)
-			return (false);
+		ft_bzero(buffer, sizeof(buffer));
+		if ((nbytes = read(0, buffer, sizeof(buffer))) == -1)
+		{
+			return_state = false;
+			select.exit = true;
+		}
 		else if (nbytes > 0)
 		{
 			if ((result = handle_special_characters(buffer, &select, &search)) == -1)
@@ -250,5 +256,5 @@ bool		loop(int count, char **texts)
 	if (select.termcaps.cur_visible)
 		tputs(select.termcaps.cur_visible, 1, putchar_tty);
 	free(g_items);
-	return (true);
+	return (return_state);
 }
