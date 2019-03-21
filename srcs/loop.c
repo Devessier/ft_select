@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 12:20:44 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/21 12:13:19 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/21 18:30:03 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,6 @@ static bool	init_select(t_select *select, int count, char **texts)
 	*select = (t_select) {
 		.window = winsize.ws,
 		.termcaps = {
-			.sv_cursor = tgetstr("sc", NULL),
-			.re_cursor = tgetstr("rc", NULL),
 			.clear = tgetstr("cd", NULL),
 			.clear_scr = tgetstr("cl", NULL),
 			.mv_cursor = tgetstr("cm", NULL),
@@ -149,9 +147,8 @@ static int	handle_special_characters(char buffer[BUFF_SIZE], t_select *select, t
 {
 	t_item	*item;
 
-	if ((item = item_from_id(select->selector.items,
-		select->selector.len, select->selector.index)) == NULL)
-		return (3);
+	item = item_from_id(select->selector.items,
+		select->selector.len, select->selector.index);
 	if (*buffer == 0xd && buffer[1] == 0)
 		return (2);
 	if (*buffer == 0x1b && buffer[1] == 0)

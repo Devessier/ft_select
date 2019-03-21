@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 13:08:21 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/21 11:55:32 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/21 15:01:52 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,61 +15,14 @@
 #include "select.h"
 #include "libft.h"
 
-void	pad(size_t pad_of)
+void		pad(size_t pad_of)
 {
 	while (pad_of--)
 		putchar_tty(' ');
 }
 
-void	nothing_to_show_message(t_select *select)
+static bool	checks(t_select *select, t_search *search, int max_items_per_line)
 {
-	const int	middle_x = (select->window.ws_col - NOTHING_TO_SHOW_LEN - 1) / 2;
-	const int	middle_y = (select->window.ws_row - 1) / 2;
-
-	if (select->termcaps.mv_cursor)
-		tputs(tgoto(select->termcaps.mv_cursor, middle_x, middle_y), 1, putchar_tty);
-	putf_tty(WARNING "  " RED_FOREGROUD "%s" COLOR_RESET " " WARNING, NOTHING_TO_SHOW);
-}
-
-void	no_space_screen(t_select *select)
-{
-	if (select->termcaps.mv_cursor)
-		tputs(tgoto(select->termcaps.mv_cursor, 0, 0), 0, putchar_tty);
-	if (select->termcaps.clear)
-		tputs(select->termcaps.clear, 1, putchar_tty);
-	if (select->termcaps.mv_cursor)
-		tputs(tgoto(select->termcaps.mv_cursor, 0, 0), 0, putchar_tty);
-	putf_tty(RED_BACKGROUND);
-	if (select->termcaps.clear)
-		tputs(select->termcaps.clear, 1, putchar_tty);
-	putf_tty(COLOR_RESET);
-}
-
-bool	not_enough_space(t_select *select, int items_per_line)
-{
-	int		nb_lines;
-	bool	error;
-
-	if (items_per_line > 0)
-	{
-		nb_lines = 3 + select->selector.visible_count / items_per_line * ITEM_HEIGHT;
-		error = nb_lines >= select->window.ws_row || select->window.ws_col <= 40;
-	}
-	else
-		error = true;
-	if (!select->selector.dirty)
-		select->selector.dirty = error;
-	return (error);
-}
-
-bool	paint(t_item *items, t_select *select, t_search *search)
-{
-	const int	divisor = select->selector.max_item_text_len + ITEM_PADDING;
-	const int	max_items_per_line = select->window.ws_col / divisor;
-	t_box	box;
-	size_t	i;
-	size_t	item_id;
-
 	if (not_enough_space(select, max_items_per_line))
 	{
 		no_space_screen(select);
@@ -86,23 +39,46 @@ bool	paint(t_item *items, t_select *select, t_search *search)
 		print_header(select);
 		paint_search(search, select);
 	}
-	i = 0;
+	return (true);
+}
+
+static void	paint_loop(t_select *select, t_item *items,
+	int max_items_per_line, size_t i)
+{
+	t_box	box;
+	size_t	item_id;
+	size_t	x;
+
 	item_id = 0;
 	while (i++ < select->selector.len)
 	{
-		if (!((!items[i - 1].dirty && !select->selector.dirty) || items[i - 1].hidden)) 
+		if (!((!items[i - 1].dirty && !select->selector.dirty)
+			|| items[i - 1].hidden))
 		{
+			x = (item_id % max_items_per_line) *
+					(select->selector.max_item_text_len + ITEM_PADDING) + 5;
 			box = (t_box) {
-				.x = (item_id % max_items_per_line) * (select->selector.max_item_text_len + ITEM_PADDING) + 5,
+				.x = x,
 				.y = item_id / max_items_per_line + 1,
 				.width = select->selector.max_item_text_len
 			};
 			items[i - 1].text_align = CENTER;
-			items[i - 1].paint(&items[i - 1], &select->termcaps, box, select->selector.dirty);
+			items[i - 1].paint(&items[i - 1], &select->termcaps,
+				box, select->selector.dirty);
 		}
 		if (!items[i - 1].hidden)
 			item_id++;
 	}
+}
+
+bool		paint(t_item *items, t_select *select, t_search *search)
+{
+	const int	divisor = select->selector.max_item_text_len + ITEM_PADDING;
+	const int	max_items_per_line = select->window.ws_col / divisor;
+
+	if (!checks(select, search, max_items_per_line))
+		return (false);
+	paint_loop(select, items, max_items_per_line, 0);
 	if (select->selector.visible_count == 0)
 		nothing_to_show_message(select);
 	select->selector.dirty = false;

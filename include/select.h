@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 10:48:49 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/19 13:57:38 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/21 18:33:08 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@
 # define COLOR_SOCK CSI "32m"
 # define NOTHING_TO_SHOW "Nothing to show, please modify your query"
 # define NOTHING_TO_SHOW_LEN (sizeof(NOTHING_TO_SHOW) - 1)
-# define WARNING "\xF0\x9F\x9A\xB8"
+# define WARNING "\xF0\x9F\x96\x95"
 
 typedef struct	s_box
 {
@@ -47,8 +47,6 @@ typedef struct	s_box
 
 typedef struct	s_termcaps
 {
-	char	*sv_cursor;
-	char	*re_cursor;
 	char	*clear;
 	char	*clear_scr;
 	char	*mv_cursor;
@@ -65,7 +63,7 @@ typedef struct	s_termcaps
 	char	*stop_cup_mode;
 }				t_termcaps;
 
-typedef enum	s_text_align
+typedef enum	e_text_align
 {
 	LEFT,
 	CENTER,
@@ -130,7 +128,6 @@ typedef struct	s_reader
 	size_t	index;
 }				t_reader;
 
-
 int				fd(void);
 
 void			setup_termios(bool reset);
@@ -141,6 +138,10 @@ void			init_search(t_search *search, t_select *select);
 void			paint_search(t_search *search, t_select *select);
 void			paint_search_input(t_search *search, t_select *select);
 
+void			nothing_to_show_message(t_select *select);
+void			no_space_screen(t_select *select);
+bool			not_enough_space(t_select *select, int items_per_line);
+
 void			print_header(t_select *select);
 
 int				putchar_tty(int c);
@@ -148,7 +149,12 @@ int				putf_tty(const char *format, ...);
 
 t_winsize		get_terminal_size(void);
 
-bool			instanciate_items(t_selector *selector, int count, char **texts);
+void			text_align(t_item *item, t_box *box);
+void			color_item(t_item *item);
+
+void			init_item(t_item *item, char *text, size_t index);
+bool			instanciate_items(t_selector *selector, int count,
+	char **texts);
 size_t			calculate_max_text_len_items(t_item *items, size_t len);
 bool			modify_items(t_select *select);
 bool			print_items(t_item *items, size_t len);
@@ -159,6 +165,8 @@ void			move_cursor(t_select *select, int index, int move);
 void			pad(size_t pad_of);
 bool			paint(t_item *items, t_select *select, t_search *search);
 bool			loop(int count, char **items);
+
+bool			match(const char *s1, const char *s2);
 
 extern bool		g_resize;
 extern t_item	*g_items;

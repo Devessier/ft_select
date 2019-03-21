@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/14 16:30:24 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/18 15:41:19 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/21 18:07:26 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,19 +23,6 @@ void		init_search(t_search *search, t_select *select)
 		.query_field_len = 30,
 	};
 	ft_bzero(search->query, sizeof(search->query));
-}
-
-static bool	match(const char *s1, const char *s2)
-{
-	if (*s1 == *s2 && *s1 != '\0')
-		return (match(s1 + 1, s2 + 1));
-	if (*s2 == '*' && *s1 != '\0')
-		return (match(s1 + 1, s2) || match(s1, s2 + 1));
-	if (*s2 == '*' && *s1 == '\0')
-		return (match(s1, s2 + 1));
-	if (*s2 == '\0' && *s1 == '\0')
-		return (true);
-	return (false);
 }
 
 static bool	predicate(t_item *item, t_search *search)
@@ -69,7 +56,6 @@ void		sort_items(t_search *search, t_select *select)
 		select->selector.index = 0;
 	select->selector.visible_count = search->len > 0 ? count : select->selector.len;
 	select->selector.max_item_text_len = calculate_max_text_len_items(select->selector.items, select->selector.len);
-
 }
 
 static void	pad_end_color(const char *color, char *string, size_t len, size_t max)

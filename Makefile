@@ -6,13 +6,13 @@
 #    By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/03/11 10:38:02 by bdevessi          #+#    #+#              #
-#    Updated: 2019/03/19 13:57:06 by bdevessi         ###   ########.fr        #
+#    Updated: 2019/03/21 14:16:48 by bdevessi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = ft_select
-CFLAGS = -Wall -Wextra -Werror -Iinclude -Ilibft/includes -g -fsanitize=address
-CC = clang
+CFLAGS = -Wall -Wextra -Werror -Iinclude -Ilibft/includes
+CC = gcc
 
 include src.mk
 
@@ -32,13 +32,10 @@ $(NAME): $(OBJS)
 	@ echo "\x1b[102;30m$(NAME)\x1b[0m is done ! \xE2\x9C\x85"
 
 clean:
-	@ $(MAKE) -C libft clean
 	@ rm -f $(OBJS)
 	@ echo "Cleaning \x1b[102;30m$(NAME)\x1b[0m done !"
 
 fclean: clean
-	@ rm -f libft/libft.a
-	@ rm -f $(NAME)
 	@ echo "Super cleaning \x1b[102;30m$(NAME)\x1b[0m done !"
 
 re: fclean $(NAME)
