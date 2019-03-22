@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/18 10:49:16 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/22 10:42:57 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/22 15:53:33 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 
 void		setup_sig_handlers(void)
 {
+	signal(SIGTERM, signal_handler);
 	signal(SIGINT, signal_handler);
 	signal(SIGQUIT, signal_handler);
 	signal(SIGABRT, signal_handler);
