@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 11:22:41 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/22 11:47:36 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/22 13:27:31 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ static int	handle_no_tty_no_term_no_getent(const char *term, const int result)
 int			main(int argc, char **argv)
 {
 	const char	*term = getenv("TERM");
-	const int	result = term != NULL && tgetent(NULL, term);
+	const int	result = tgetent(NULL, term);
 	int			ffd;
 
 	if (argc == 1)

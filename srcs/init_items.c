@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/21 16:08:35 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/22 12:12:13 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/22 14:06:51 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,6 @@ bool		modify_items(t_select *select)
 bool		print_items(t_item *items, size_t len)
 {
 	size_t	i;
-	bool	endl;
 	size_t	selected;
 
 	selected = 0;
@@ -89,7 +88,6 @@ bool		print_items(t_item *items, size_t len)
 	while (i++ < len)
 		if (items[i - 1].selected)
 			selected++;
-	endl = false;
 	i = 0;
 	while (i++ < len)
 	{
@@ -98,7 +96,6 @@ bool		print_items(t_item *items, size_t len)
 		ft_putstr(items[i - 1].text);
 		if (--selected)
 			ft_putchar(' ');
-		endl = true;
 	}
 	return (true);
 }

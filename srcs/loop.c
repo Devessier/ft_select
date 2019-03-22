@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 12:20:44 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/22 11:59:10 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/22 13:45:21 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ static bool		init_loop(int count, char **texts
 	return (true);
 }
 
-static void		for_each(t_select *select, t_search *search,
+static bool		for_each(t_select *select, t_search *search,
 	char buffer[BUFF_SIZE], bool *return_state)
 {
 	ssize_t	nbytes;
@@ -77,14 +77,15 @@ static void		for_each(t_select *select, t_search *search,
 		{
 			if (select->termcaps.stop_cup_mode)
 				tputs(select->termcaps.stop_cup_mode, 1, putchar_tty);
-			print_items(select->selector.items, select->selector.len);
 			select->exit = true;
+			return (true);
 		}
 		else if (result == 0)
 			search->dirty = true;
 		if (result <= 1)
 			refresh_ui(select, search);
 	}
+	return (false);
 }
 
 bool			loop(int count, char **texts)
@@ -93,6 +94,7 @@ bool			loop(int count, char **texts)
 	t_select	select;
 	t_search	search;
 	bool		return_state;
+	bool		print;
 
 	if (!init_loop(count, texts, &select, &search))
 		return (false);
@@ -102,12 +104,14 @@ bool			loop(int count, char **texts)
 		if (g_resize)
 			handle_resize(&select, &search);
 		ft_bzero(buffer, sizeof(buffer));
-		for_each(&select, &search, buffer, &return_state);
+		print = for_each(&select, &search, buffer, &return_state);
 	}
 	if (select.termcaps.stop_cup_mode)
 		tputs(select.termcaps.stop_cup_mode, 1, putchar_tty);
 	if (select.termcaps.cur_visible)
 		tputs(select.termcaps.cur_visible, 1, putchar_tty);
+	if (print)
+		print_items(select.selector.items, select.selector.len);
 	free(g_items);
 	return (return_state);
 }
