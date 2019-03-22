@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/21 16:08:35 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/22 10:57:52 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/22 12:12:13 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,13 +87,13 @@ bool		print_items(t_item *items, size_t len)
 	selected = 0;
 	i = 0;
 	while (i++ < len)
-		if (items[i - 1].selected && !items[i - 1].hidden)
+		if (items[i - 1].selected)
 			selected++;
 	endl = false;
 	i = 0;
 	while (i++ < len)
 	{
-		if (!items[i - 1].selected || items[i - 1].hidden)
+		if (!items[i - 1].selected)
 			continue ;
 		ft_putstr(items[i - 1].text);
 		if (--selected)
