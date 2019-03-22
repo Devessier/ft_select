@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/21 16:08:35 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/22 14:06:51 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/22 14:47:16 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,8 @@ bool		modify_items(t_select *select)
 			}
 			select->selector.len--;
 		}
+	select->selector.max_item_text_len = mtext_len(select->selector.items,
+		select->selector.len);
 	if (select->selector.len == 0)
 		return (false);
 	return (true);
