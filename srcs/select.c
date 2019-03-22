@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 11:22:41 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/22 13:27:31 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/22 15:38:29 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,6 +54,12 @@ static int	handle_no_tty_no_term_no_getent(const char *term, const int result)
 	return (0);
 }
 
+static int	print_no_args(void)
+{
+	ft_putf_fd(2, "ft_select: specify at least one parameter\n");
+	return (0);
+}
+
 int			main(int argc, char **argv)
 {
 	const char	*term = getenv("TERM");
@@ -61,7 +67,7 @@ int			main(int argc, char **argv)
 	int			ffd;
 
 	if (argc == 1)
-		return (0);
+		return (print_no_args());
 	if (handle_no_tty_no_term_no_getent(term, result) == 1)
 		return (1);
 	if (tgetent(NULL, term) != 1)
