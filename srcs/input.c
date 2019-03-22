@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/22 11:10:36 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/22 11:15:21 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/22 15:01:42 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ static int	handle_keys(char buffer[BUFF_SIZE],
 	else if (buffer[2] == 'D')
 		move_cursor(select, -1, 0);
 	else if (buffer[2] == 0x33 && buffer[3] == 0x7e
-		&& search->cursor > 0 && search->len < 1024)
+		&& search->cursor > 0)
 	{
 		search->query[--search->cursor] = '\0';
 		search->len--;
@@ -78,7 +78,7 @@ int			handle_special_characters(char buffer[BUFF_SIZE],
 		return (handle_space(item, select));
 	if (*buffer == 0x1b && buffer[1] == '[')
 		return (handle_keys(buffer, select, search));
-	if (ft_isprint(*buffer))
+	if (ft_isprint(*buffer) && search->len < 1024)
 	{
 		search->query[search->cursor++] = *buffer;
 		search->len++;
