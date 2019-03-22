@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 11:22:41 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/21 22:23:58 by Devessier        ###   ########.fr       */
+/*   Updated: 2019/03/22 11:47:36 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@
 #include "select.h"
 #include "libft.h"
 
-void	setup_termios(bool reset)
+void		setup_termios(bool reset)
 {
 	static struct termios	original_termios;
 	struct termios			raw_termios_struct;
@@ -39,29 +39,37 @@ void	setup_termios(bool reset)
 	}
 }
 
-int		main(int argc, char **argv)
+static int	handle_no_tty_no_term_no_getent(const char *term, const int result)
 {
-	const char	*term = getenv("TERM");
-	const int	result = term != NULL && tgetent(NULL, term);
-	int	_fd;
-
 	if (!(isatty(0) && term != NULL && result == 1))
 	{
 		if (term == NULL || result != 1)
 			ft_putf_fd(2, "ft_select: " "%s\n", term == NULL
-			? "TERM env var is undefined or null" : "Couldn't load the termcaps DB");
+			? "TERM env var is undefined or null"
+			: "Couldn't load the termcaps DB");
 		else
 			ft_putf_fd(2, "ft_select: Stdin is not a tty\n");
 		return (1);
 	}
+	return (0);
+}
+
+int			main(int argc, char **argv)
+{
+	const char	*term = getenv("TERM");
+	const int	result = term != NULL && tgetent(NULL, term);
+	int			ffd;
+
 	if (argc == 1)
 		return (0);
+	if (handle_no_tty_no_term_no_getent(term, result) == 1)
+		return (1);
 	if (tgetent(NULL, term) != 1)
 	{
-		ft_putf("error\n");
-		return (0);
+		ft_putf_fd(2, "ft_select: Can't load %s terminfo entry\n", term);
+		return (1);
 	}
-	if ((_fd = fd()) == -1)
+	if ((ffd = fd()) == -1)
 	{
 		ft_putf_fd(2, "ft_select: Couldn't open /dev/tty\n");
 		return (1);
@@ -70,6 +78,6 @@ int		main(int argc, char **argv)
 	setup_sig_handlers();
 	loop(--argc, ++argv);
 	setup_termios(true);
-	close(_fd);
+	close(ffd);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/18 10:49:16 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/19 15:33:25 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/22 10:42:57 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,10 +41,23 @@ static void	reset_for_exit(void)
 		tputs(termcap, 1, putchar_tty);
 }
 
-void		signal_handler(int sig)
+static void	handle_sigcont(void)
 {
 	char	*termcap;
 
+	setup_termios(false);
+	g_resize = true;
+	if ((termcap = tgetstr("ti", NULL)) != NULL)
+		tputs(termcap, 1, putchar_tty);
+	if ((termcap = tgetstr("cl", NULL)) != NULL)
+		tputs(termcap, 1, putchar_tty);
+	if ((termcap = tgetstr("vi", NULL)) != NULL)
+		tputs(termcap, 1, putchar_tty);
+	setup_sig_handlers();
+}
+
+void		signal_handler(int sig)
+{
 	if (sig == SIGTSTP)
 	{
 		reset_for_exit();
@@ -52,17 +65,7 @@ void		signal_handler(int sig)
 		ioctl(fd(), TIOCSTI, "\x1A");
 	}
 	else if (sig == SIGCONT)
-	{
-		setup_termios(false);
-		g_resize = true;
-		if ((termcap = tgetstr("ti", NULL)) != NULL)
-			tputs(termcap, 1, putchar_tty);
-		if ((termcap = tgetstr("cl", NULL)) != NULL)
-			tputs(termcap, 1, putchar_tty);
-		if ((termcap = tgetstr("vi", NULL)) != NULL)
-			tputs(termcap, 1, putchar_tty);
-		setup_sig_handlers();
-	}
+		handle_sigcont();
 	else if (sig == SIGWINCH)
 		g_resize = true;
 	else

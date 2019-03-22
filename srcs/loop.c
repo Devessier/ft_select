@@ -6,181 +6,19 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 12:20:44 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/21 23:43:09 by Devessier        ###   ########.fr       */
+/*   Updated: 2019/03/22 11:59:10 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include <sys/ioctl.h>
 #include <stdbool.h>
-#include <term.h>
-#include <curses.h>
+#include <termcap.h>
 #include "select.h"
 #include "libft.h"
 
 bool			g_resize = true;
 
-t_winsize		get_terminal_size(void)
-{
-	struct winsize	ws;
-
-	if (ioctl(0, TIOCGWINSZ, &ws) == -1)
-		return ((t_winsize) {
-			.error = true
-		});
-	return ((t_winsize) {
-		.error = false,
-		.ws = ws,
-	});
-}
-
-static bool	init_select(t_select *select, int count, char **texts)
-{
-	const t_winsize	winsize = get_terminal_size();
-
-	if (winsize.error)
-		return (false);	
-	*select = (t_select) {
-		.window = winsize.ws,
-		.termcaps = {
-			.clear = tgetstr("cd", NULL),
-			.clear_scr = tgetstr("cl", NULL),
-			.mv_cursor = tgetstr("cm", NULL),
-			.k_left = tgetstr("kl", NULL),
-			.k_up = tgetstr("ku", NULL),
-			.k_right = tgetstr("kr", NULL),
-			.k_down = tgetstr("kd", NULL),
-			.reverse_video = tgetstr("mr", NULL),
-			.underline = tgetstr("us", NULL),
-			.disable_style = tgetstr("me", NULL),
-			.cur_visible = tgetstr("ve", NULL),
-			.cur_invisible = tgetstr("vi", NULL),
-			.cup_mode = tgetstr("ti", NULL),
-			.stop_cup_mode = tgetstr("te", NULL),
-			.maximum_colors = tgetnum("Co"),
-		},
-		.exit = false,
-		.overflow = false,
-	};
-	if (!instanciate_items(&select->selector, count, texts))
-		return (false);
-	return (true);
-}
-
-void		move_cursor(t_select *select, int index, int move)
-{
-	t_item	*item;
-
-	if ((item = item_from_id(select->selector.items, select->selector.len, select->selector.index)) != NULL)
-		item->dirty = true;
-	if (select->selector.visible_count == 0 && (index == 1 || index == -1))
-		return ;
-	if (index == 1)
-		if (select->selector.index == select->selector.visible_count - 1)
-			select->selector.index = 0;
-		else
-			select->selector.index++;
-	else if (index == -1)
-		if (select->selector.index == 0)
-			select->selector.index = select->selector.visible_count - 1;
-		else
-			select->selector.index--;
-	else if (index == 0)
-		if ((ssize_t)select->selector.index + move < 0 || (ssize_t)select->selector.index + move > (ssize_t)select->selector.visible_count - 1)
-			select->selector.index = (ssize_t)select->selector.index + move < 0 ? select->selector.visible_count - 1 : 0;
-		else
-			select->selector.index += move;
-	else if (index == 2)
-		if ((ssize_t)select->selector.index + move < 0 || (ssize_t)select->selector.index + move > (ssize_t)select->selector.visible_count - 1)
-			select->selector.index = (ssize_t)select->selector.index + move < 0 ? 0 : select->selector.visible_count - 1;
-		else
-			select->selector.index += move;
-	else
-		select->selector.index = move;
-	if ((item = item_from_id(select->selector.items, select->selector.len, select->selector.index)) != NULL)
-		item->dirty = true;
-}
-
-static int	handle_del(t_item *item, t_select *select)
-{
-	if (select->selector.visible_count == 0)
-		return (1);
-	item->suppressed = true;
-	select->selector.dirty = true;
-	if (select->selector.index == select->selector.visible_count - 1)
-		move_cursor(select, 2, -1);
-	return (modify_items(select) ? 1 : -1);
-}
-
-static int	handle_space(t_item *item, t_select *select)
-{
-	if (select->selector.visible_count != 0)
-	{
-		item->selected ^= 1;
-		item->dirty = true;
-		move_cursor(select, 0, 1);
-	}
-	return (1);
-}
-
-static int	handle_keys(char buffer[BUFF_SIZE], t_select *select, t_search *search)
-{
-	if (buffer[2] == 'A' && select->selector.index + 1
-	> (size_t)select->selector.max_items_per_line)
-		move_cursor(select, 2, -select->selector.max_items_per_line);
-	else if (buffer[2] == 'B'
-	&& (int)(select->selector.visible_count - select->selector.index)
-	> select->selector.max_items_per_line)
-		move_cursor(select, 2, select->selector.max_items_per_line);
-	else if (buffer[2] == 'C')
-		move_cursor(select, 1, 0);
-	else if (buffer[2] == 'D')
-		move_cursor(select, -1, 0);
-	else if (buffer[2] == 0x33 && buffer[3] == 0x7e && search->cursor > 0)
-	{
-		search->query[--search->cursor] = '\0';
-		search->len--;
-		return (0);
-	}
-	return (1);
-}
-
-static int	handle_special_characters(char buffer[BUFF_SIZE], t_select *select, t_search *search)
-{
-	t_item	*item;
-
-	item = item_from_id(select->selector.items,
-		select->selector.len, select->selector.index);
-	if (*buffer == 0xd && buffer[1] == 0)
-		return (2);
-	if (*buffer == 0x1b && buffer[1] == 0)
-		return (-1);
-	if (select->overflow)
-		return (3);
-	if ((*buffer == 0x7f || *buffer == 0x8) && buffer[1] == 0)
-		return (handle_del(item, select));
-	if (*buffer == ' ' && buffer[1] == 0)
-		return (handle_space(item, select));
-	if (*buffer == 0x1b && buffer[1] == '[')
-		return (handle_keys(buffer, select, search));
-	if (ft_isprint(*buffer))
-	{
-		search->query[search->cursor++] = *buffer;
-		search->len++;
-		return (0);
-	}
-	return (1);
-}
-
-static void	hover(t_select *select)
-{
-	size_t	i;
-
-	i = 0;
-	while (i++ < select->selector.len)
-		select->selector.items[i - 1].hover = select->selector.items[i - 1].id == (int)select->selector.index;
-}
-
-static void	refresh_ui(t_select *select, t_search *search)
+static void		refresh_ui(t_select *select, t_search *search)
 {
 	if (search->dirty)
 		paint_search_input(search, select);
@@ -189,12 +27,12 @@ static void	refresh_ui(t_select *select, t_search *search)
 	search->dirty = false;
 }
 
-static bool	handle_resize(t_select *select, t_search *search)
+static bool		handle_resize(t_select *select, t_search *search)
 {
 	const t_winsize	winsize = get_terminal_size();
 
 	if (winsize.error)
-		return (false);	
+		return (false);
 	select->selector.dirty = true;
 	select->window = winsize.ws;
 	refresh_ui(select, search);
@@ -202,54 +40,69 @@ static bool	handle_resize(t_select *select, t_search *search)
 	return (true);
 }
 
-bool		loop(int count, char **texts)
+static bool		init_loop(int count, char **texts
+	, t_select *select, t_search *search)
+{
+	if (!init_select(select, count, texts))
+	{
+		ft_putf_fd(2, "ft_select: fatal error, exit\n");
+		return (false);
+	}
+	init_search(search, select);
+	if (select->termcaps.cup_mode)
+		tputs(select->termcaps.cup_mode, 1, putchar_tty);
+	if (select->termcaps.clear_scr)
+		tputs(select->termcaps.clear_scr, 1, putchar_tty);
+	if (select->termcaps.cur_invisible)
+		tputs(select->termcaps.cur_invisible, 1, putchar_tty);
+	return (true);
+}
+
+static void		for_each(t_select *select, t_search *search,
+	char buffer[BUFF_SIZE], bool *return_state)
+{
+	ssize_t	nbytes;
+	int		result;
+
+	if ((nbytes = read(0, buffer, BUFF_SIZE)) == -1)
+	{
+		*return_state = false;
+		select->exit = true;
+	}
+	else if (nbytes > 0)
+	{
+		if ((result = handle_special_characters(buffer, select, search)) == -1)
+			select->exit = true;
+		else if (result == 2)
+		{
+			if (select->termcaps.stop_cup_mode)
+				tputs(select->termcaps.stop_cup_mode, 1, putchar_tty);
+			print_items(select->selector.items, select->selector.len);
+			select->exit = true;
+		}
+		else if (result == 0)
+			search->dirty = true;
+		if (result <= 1)
+			refresh_ui(select, search);
+	}
+}
+
+bool			loop(int count, char **texts)
 {
 	char		buffer[BUFF_SIZE];
 	t_select	select;
 	t_search	search;
-	ssize_t		nbytes;
-	int			result;
 	bool		return_state;
 
-	return_state = true;
-	if (!init_select(&select, count, texts))
-	{
-		ft_putf_fd(2, "ft_select: memory allocation error\n");
+	if (!init_loop(count, texts, &select, &search))
 		return (false);
-	}
-	init_search(&search, &select);
-	if (select.termcaps.cup_mode)
-		tputs(select.termcaps.cup_mode, 1, putchar_tty);
-	if (select.termcaps.clear_scr)
-		tputs(select.termcaps.clear_scr, 1, putchar_tty);
-	if (select.termcaps.cur_invisible)
-		tputs(select.termcaps.cur_invisible, 1, putchar_tty);
+	return_state = true;
 	while (!select.exit)
 	{
 		if (g_resize)
 			handle_resize(&select, &search);
 		ft_bzero(buffer, sizeof(buffer));
-		if ((nbytes = read(0, buffer, sizeof(buffer))) == -1)
-		{
-			return_state = false;
-			select.exit = true;
-		}
-		else if (nbytes > 0)
-		{
-			if ((result = handle_special_characters(buffer, &select, &search)) == -1)
-				select.exit = true;
-			else if (result == 2)
-			{
-				if (select.termcaps.stop_cup_mode)
-					tputs(select.termcaps.stop_cup_mode, 1, putchar_tty);
-				print_items(select.selector.items, select.selector.len);
-				select.exit = true;
-			}
-			else if (result == 0)
-				search.dirty = true;
-			if (result <= 1)
-				refresh_ui(&select, &search);
-		}
+		for_each(&select, &search, buffer, &return_state);
 	}
 	if (select.termcaps.stop_cup_mode)
 		tputs(select.termcaps.stop_cup_mode, 1, putchar_tty);

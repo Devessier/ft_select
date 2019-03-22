@@ -6,13 +6,13 @@
 #    By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2019/03/11 10:38:02 by bdevessi          #+#    #+#              #
-#    Updated: 2019/03/21 14:16:48 by bdevessi         ###   ########.fr        #
+#    Updated: 2019/03/22 10:19:13 by bdevessi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = ft_select
-CFLAGS = -Wall -Wextra -Werror -Iinclude -Ilibft/includes
-CC = gcc
+CFLAGS = -Wall -Wextra -Werror -Iinclude -Ilibft/includes -fsanitize=address
+CC = clang
 
 include src.mk
 

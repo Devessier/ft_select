@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 10:48:49 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/21 23:35:14 by Devessier        ###   ########.fr       */
+/*   Updated: 2019/03/22 12:00:36 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@
 # define COLOR_SOCK CSI "32m"
 # define NOTHING_TO_SHOW "Nothing to show, please modify your query"
 # define NOTHING_TO_SHOW_LEN (sizeof(NOTHING_TO_SHOW) - 1)
-# define WARNING "\xF0\x9F\x96\x95"
+# define WARNING "\xF0\x9F\x98\xA2"
 
 typedef struct	s_box
 {
@@ -50,10 +50,6 @@ typedef struct	s_termcaps
 	char	*clear;
 	char	*clear_scr;
 	char	*mv_cursor;
-	char	*k_left;
-	char	*k_up;
-	char	*k_right;
-	char	*k_down;
 	char	*reverse_video;
 	char	*underline;
 	char	*disable_style;
@@ -135,6 +131,7 @@ void			setup_termios(bool reset);
 void			setup_sig_handlers(void);
 void			signal_handler(int sig);
 
+void			sort_items(t_search *search, t_select *select);
 void			init_search(t_search *search, t_select *select);
 void			paint_search(t_search *search, t_select *select);
 void			paint_search_input(t_search *search, t_select *select);
@@ -156,15 +153,20 @@ void			color_item(t_item *item, t_termcaps *termcaps);
 void			init_item(t_item *item, char *text, size_t index);
 bool			instanciate_items(t_selector *selector, int count,
 	char **texts);
-size_t			calculate_max_text_len_items(t_item *items, size_t len);
+size_t			mtext_len(t_item *items, size_t len);
 bool			modify_items(t_select *select);
 bool			print_items(t_item *items, size_t len);
 t_item			*item_from_id(t_item *items, size_t len, int id);
 
 void			move_cursor(t_select *select, int index, int move);
 
+int				handle_special_characters(char buffer[BUFF_SIZE],
+	t_select *select, t_search *search);
+
+void			hover(t_select *select);
 void			pad(size_t pad_of);
 bool			paint(t_item *items, t_select *select, t_search *search);
+bool			init_select(t_select *select, int count, char **texts);
 bool			loop(int count, char **items);
 
 bool			match(const char *s1, const char *s2);

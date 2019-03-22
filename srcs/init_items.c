@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/21 16:08:35 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/21 16:14:18 by bdevessi         ###   ########.fr       */
+/*   Updated: 2019/03/22 10:57:52 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ bool		instanciate_items(t_selector *selector, int count, char **texts)
 	return (true);
 }
 
-size_t		calculate_max_text_len_items(t_item *items, size_t len)
+size_t		mtext_len(t_item *items, size_t len)
 {
 	size_t	max;
 	size_t	i;

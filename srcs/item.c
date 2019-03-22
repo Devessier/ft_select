@@ -6,7 +6,7 @@
 /*   By: bdevessi <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/03/11 12:41:56 by bdevessi          #+#    #+#             */
-/*   Updated: 2019/03/21 23:34:21 by Devessier        ###   ########.fr       */
+/*   Updated: 2019/03/22 10:41:28 by bdevessi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@
 #include "select.h"
 #include "libft.h"
 
-t_item		*g_items = NULL;
+t_item	*g_items = NULL;
 
 bool	paint_fn(t_item *item, t_termcaps *termcaps, t_box box, bool force)
 {
@@ -39,7 +39,7 @@ bool	paint_fn(t_item *item, t_termcaps *termcaps, t_box box, bool force)
 	return (true);
 }
 
-void		init_item(t_item *item, char *text, size_t index)
+void	init_item(t_item *item, char *text, size_t index)
 {
 	struct stat	buf;
 
@@ -58,7 +58,7 @@ void		init_item(t_item *item, char *text, size_t index)
 		item->file_type = buf.st_mode;
 }
 
-t_item		*item_from_id(t_item *items, size_t len, int id)
+t_item	*item_from_id(t_item *items, size_t len, int id)
 {
 	size_t	i;
 
